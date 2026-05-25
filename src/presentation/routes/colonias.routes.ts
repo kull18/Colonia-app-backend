@@ -10,6 +10,7 @@ import {
   updateVecinoEstado,
 } from '../controllers/colonias.controller';
 import { authenticate, requireRole } from '../../infrastructure/middleware/auth.middleware';
+import { coloniaImageUpload } from '../../infrastructure/middleware/coloniaImageUpload';
 
 const router = Router();
 
@@ -17,7 +18,7 @@ const router = Router();
 router.use(authenticate);
 
 // POST   /api/colonias              — admin crea una colonia
-router.post('/', requireRole('admin'), createColonia);
+router.post('/', requireRole('admin'), coloniaImageUpload.single('imagen'), createColonia);
 
 // GET    /api/colonias/mis-colonias — admin ve sus colonias
 router.get('/mis-colonias', requireRole('admin'), getMisColonias);
@@ -29,7 +30,7 @@ router.post('/unirse', requireRole('vecino'), solicitarUnirse);
 router.get('/:id', getColoniaById);
 
 // PUT    /api/colonias/:id          — admin edita la colonia
-router.put('/:id', requireRole('admin'), updateColonia);
+router.put('/:id', requireRole('admin'), coloniaImageUpload.single('imagen'), updateColonia);
 
 // DELETE /api/colonias/:id          — admin desactiva la colonia
 router.delete('/:id', requireRole('admin'), deleteColonia);

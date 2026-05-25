@@ -2,15 +2,19 @@ import express from 'express';
 import dotenv from 'dotenv';
 import authRoutes     from './presentation/routes/auth.routes';
 import coloniasRoutes from './presentation/routes/colonias.routes';
+import { ensureColoniaImagesDir, publicDir } from './infrastructure/config/storage';
 
 dotenv.config();
 
 const app  = express();
 const PORT = process.env.PORT ?? 3000;
 
+ensureColoniaImagesDir();
+
 // ── Middlewares globales ─────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/static', express.static(publicDir));
 
 // ── Rutas ────────────────────────────────────────────────────
 app.use('/api/auth',     authRoutes);
