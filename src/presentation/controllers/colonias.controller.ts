@@ -5,6 +5,7 @@ import { MySQLColoniasRepository } from '../../infrastructure/repositories/colon
 import { MySQLVecinosRepository } from '../../infrastructure/repositories/vecinos/MySQLVecinosRepository';
 import { AuthRequest } from '../../infrastructure/middleware/auth.middleware';
 import { VecinoEstado } from '../../domain/entities/VecinoColonia';
+import { coloniaImageUrlFromFile } from '../../infrastructure/config/storage';
 
 const coloniasRepo    = new MySQLColoniasRepository();
 const vecinosRepo     = new MySQLVecinosRepository();
@@ -18,7 +19,11 @@ const getVecinosUC    = new GetVecinosColoniaUseCase(vecinosRepo);
 const updateVecinoUC  = new UpdateVecinoEstadoUseCase(vecinosRepo);
 
 export const createColonia = async (req: AuthRequest, res: Response): Promise<void> => {
-  try { res.status(201).json(await createUC.execute(req.body, req.user!.sub)); }
+  try {
+    const imagenUrl = req.file?.filename ? coloniaImageUrlFromFile(req.file.filename) : req.body.imagenUrl;
+    const colonia = await createUC.execute({ ...req.body, imagenUrl }, req.user!.sub);
+    res.status(201).json(colonia);
+  }
   catch (err) { res.status(400).json({ error: err instanceof Error ? err.message : 'Error al crear colonia' }); }
 };
 
@@ -33,7 +38,11 @@ export const getColoniaById = async (req: AuthRequest, res: Response): Promise<v
 };
 
 export const updateColonia = async (req: AuthRequest, res: Response): Promise<void> => {
-  try { res.status(200).json(await updateUC.execute(req.params['id'] as string, req.body)); }
+  try {
+    const imagenUrl = req.file?.filename ? coloniaImageUrlFromFile(req.file.filename) : req.body.imagenUrl;
+    const colonia = await updateUC.execute(req.params['id'] as string, { ...req.body, imagenUrl });
+    res.status(200).json(colonia);
+  }
   catch (err) { res.status(400).json({ error: err instanceof Error ? err.message : 'Error al actualizar' }); }
 };
 
